@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Order to Chaos - A Visual Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(180deg, #0a0a1a 0%, #1a1a3a 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 60px 20px;
+            position: relative;
+        }
+
+        header h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+
+        header h1 span {
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .tagline {
+            font-size: 1.3em;
+            color: #888;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Main Demo Section */
+        .main-demo {
+            background: rgba(255,255,255,0.03);
+            border-radius: 30px;
+            padding: 40px;
+            margin: 40px 0;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .demo-title {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .demo-title h2 {
+            font-size: 2em;
+            color: #4ecdc4;
+            margin-bottom: 10px;
+        }
+
+        /* Faucet Simulation */
+        .faucet-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 60px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+
+        .faucet-visual {
+            position: relative;
+            width: 300px;
+            height: 450px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 2px solid #333;
+        }
+
+        /* Faucet SVG */
+        .faucet-svg {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+        }
+
+        /* Water drops */
+        .drop {
+            position: absolute;
+            width: 20px;
+            height: 26px;
+            background: linear-gradient(180deg, #4ecdc4 0%, #44a3aa 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            filter: drop-shadow(0 0 10px rgba(78, 205, 196, 0.5));
+        }
+
+        /* Sink */
+        .sink {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(180deg, #2a2a4a 0%, #1a1a2e 100%);
+            border-top: 3px solid #3a3a5a;
+        }
+
+        .splash {
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 20px;
+            opacity: 0;
+        }
+
+        .splash-drop {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #4ecdc4;
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        /* Control Panel */
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            max-width: 500px;
+        }
+
+        .pressure-control {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .pressure-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .pressure-label span {
+            font-size: 1.2em;
+            color: #4ecdc4;
+        }
+
+        .pressure-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+        }
+
+        .pressure-slider {
+            width: 100%;
+            height: 20px;
+            border-radius: 10px;
+            background: linear-gradient(90deg, #2ed573 0%, #ffd93d 50%, #ff6b6b 100%);
+            -webkit-appearance: none;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .pressure-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border: 4px solid #4ecdc4;
+        }
+
+        .pressure-marks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        /* Status Display */
+        .status-display {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .status-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .status-description {
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        .status-display.order { border-left: 5px solid #2ed573; }
+        .status-display.period2 { border-left: 5px solid #ffd93d; }
+        .status-display.period4 { border-left: 5px solid #ff9f43; }
+        .status-display.chaos { border-left: 5px solid #ff6b6b; }
+
+        /* Rhythm Visualization */
+        .rhythm-container {
+            margin-top: 30px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .rhythm-label {
+            color: #888;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .rhythm-display {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .rhythm-dot {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #333;
+            transition: all 0.15s ease;
+        }
+
+        .rhythm-dot.active {
+            background: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.6);
+            transform: scale(1.2);
+        }
+
+        /* Scenario Cards */
+        .scenarios {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin: 60px 0;
+        }
+
+        .scenario-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .scenario-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(78, 205, 196, 0.3);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .scenario-card.active {
+            border-color: #4ecdc4;
+            background: rgba(78, 205, 196, 0.05);
+        }
+
+        .scenario-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .scenario-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .scenario-card p {
+            color: #888;
+            line-height: 1.6;
+        }
+
+        /* Journey Section */
+        .journey-section {
+            margin: 80px 0;
+        }
+
+        .journey-section h2 {
+            text-align: center;
+            font-size: 2.2em;
+            margin-bottom: 50px;
+            color: #fff;
+        }
+
+        .journey-steps {
+            position: relative;
+        }
+
+        .journey-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(180deg, #2ed573, #ffd93d, #ff9f43, #ff6b6b);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .journey-step {
+            display: flex;
+            align-items: center;
+            margin: 60px 0;
+            position: relative;
+        }
+
+        .journey-step:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .journey-step:nth-child(odd) .step-content {
+            text-align: right;
+            padding-right: 60px;
+        }
+
+        .journey-step:nth-child(even) .step-content {
+            padding-left: 60px;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-visual {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .step-number {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+            z-index: 2;
+        }
+
+        .step-content h3 {
+            font-size: 1.6em;
+            margin-bottom: 15px;
+        }
+
+        .step-content p {
+            color: #aaa;
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .step-content .example {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            font-style: italic;
+            color: #888;
+        }
+
+        /* Visual Animations */
+        .visual-box {
+            width: 200px;
+            height: 150px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pendulum-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pendulum {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            width: 4px;
+            height: 80px;
+            background: #666;
+            transform-origin: top center;
+            transform: translateX(-50%);
+        }
+
+        .pendulum-bob {
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4ecdc4, #44a3aa);
+        }
+
+        /* Heart Animation */
+        .heart-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .heart {
+            font-size: 4em;
+            color: #ff6b6b;
+            animation: heartbeat 1s infinite;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.1); }
+            60% { transform: scale(1); }
+        }
+
+        .heart.irregular {
+            animation: heartbeat-irregular 2s infinite;
+        }
+
+        @keyframes heartbeat-irregular {
+            0% { transform: scale(1); }
+            10% { transform: scale(1.2); }
+            20% { transform: scale(0.9); }
+            35% { transform: scale(1.15); }
+            45% { transform: scale(1); }
+            55% { transform: scale(1.25); }
+            65% { transform: scale(0.95); }
+            75% { transform: scale(1.1); }
+            85% { transform: scale(1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Traffic Animation */
+        .traffic-road {
+            width: 100%;
+            height: 60px;
+            background: #333;
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .traffic-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: repeating-linear-gradient(
+                90deg,
+                #ffd93d 0px,
+                #ffd93d 30px,
+                transparent 30px,
+                transparent 60px
+            );
+            transform: translateY(-50%);
+        }
+
+        .car {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 20px;
+            background: #4ecdc4;
+            border-radius: 5px;
+        }
+
+        /* Consciousness Section */
+        .consciousness-section {
+            background: linear-gradient(135deg, rgba(156, 136, 255, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%);
+            border-radius: 30px;
+            padding: 50px;
+            margin: 60px 0;
+            border: 1px solid rgba(156, 136, 255, 0.2);
+        }
+
+        .consciousness-section h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: #9c88ff;
+        }
+
+        .consciousness-intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            font-size: 1.2em;
+            line-height: 1.8;
+            color: #aaa;
+        }
+
+        .mind-comparison {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+
+        .mind-box {
+            flex: 1;
+            min-width: 280px;
+            max-width: 400px;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .mind-box.unconscious {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 159, 67, 0.1) 100%);
+            border: 1px solid rgba(255, 107, 107, 0.2);
+        }
+
+        .mind-box.conscious {
+            background: linear-gradient(135deg, rgba(46, 213, 115, 0.1) 0%, rgba(78, 205, 196, 0.1) 100%);
+            border: 1px solid rgba(46, 213, 115, 0.2);
+        }
+
+        .mind-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .mind-box h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+        }
+
+        .mind-traits {
+            list-style: none;
+            text-align: left;
+        }
+
+        .mind-traits li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            color: #aaa;
+        }
+
+        .mind-traits li:last-child {
+            border-bottom: none;
+        }
+
+        .arrow-transform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #9c88ff;
+            padding: 20px;
+        }
+
+        /* Key Insight Box */
+        .insight-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 40px;
+            border-left: 5px solid #ffd93d;
+        }
+
+        .insight-box h3 {
+            color: #ffd93d;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .insight-box p {
+            line-height: 1.8;
+            color: #ccc;
+        }
+
+        /* Interactive Examples */
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .example-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .example-card h4 {
+            color: #4ecdc4;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .example-card p {
+            color: #888;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        /* Takeaway Section */
+        .takeaway-section {
+            text-align: center;
+            padding: 60px 20px;
+            margin-top: 60px;
+        }
+
+        .takeaway-section h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+
+        .takeaway-points {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 40px 0;
+        }
+
+        .takeaway-point {
+            background: rgba(255,255,255,0.03);
+            border-radius: 20px;
+            padding: 30px;
+            width: 280px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .takeaway-point .number {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #4ecdc4, #9c88ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .takeaway-point h3 {
+            margin: 15px 0;
+            color: #fff;
+        }
+
+        .takeaway-point p {
+            color: #888;
+            font-size: 0.95em;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header h1 { font-size: 2em; }
+            .faucet-container { flex-direction: column; align-items: center; }
+            .journey-line { display: none; }
+            .journey-step { flex-direction: column !important; text-align: center; }
+            .step-content { padding: 20px !important; text-align: center !important; }
+            .step-number { position: relative; margin-bottom: 20px; }
+            .arrow-transform { transform: rotate(90deg); }
+        }
+
+        /* Sound wave animation */
+        .sound-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 60px;
+        }
+
+        .sound-bar {
+            width: 6px;
+            background: #4ecdc4;
+            border-radius: 3px;
+            animation: soundWave 0.5s ease-in-out infinite;
+        }
+
+        .sound-bar:nth-child(1) { animation-delay: 0s; }
+        .sound-bar:nth-child(2) { animation-delay: 0.1s; }
+        .sound-bar:nth-child(3) { animation-delay: 0.2s; }
+        .sound-bar:nth-child(4) { animation-delay: 0.3s; }
+        .sound-bar:nth-child(5) { animation-delay: 0.4s; }
+
+        @keyframes soundWave {
+            0%, 100% { height: 20px; }
+            50% { height: 50px; }
+        }
+
+        .sound-wave.chaotic .sound-bar {
+            animation: soundWaveChaotic 0.3s ease-in-out infinite;
+        }
+
+        @keyframes soundWaveChaotic {
+            0% { height: 15px; }
+            25% { height: 55px; }
+            50% { height: 25px; }
+            75% { height: 45px; }
+            100% { height: 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>From <span>Order</span> to <span style="color: #4ecdc4;">Chaos</span></h1>
+            <p class="tagline">
+                Understand how simple systems become complex and unpredictable
+                through a journey you can see, feel, and interact with
+            </p>
+        </header>
+
+        <!-- Main Interactive Demo: Dripping Faucet -->
+        <div class="main-demo">
+            <div class="demo-title">
+                <h2>The Dripping Faucet</h2>
+                <p style="color: #888;">Turn up the water pressure and watch order dissolve into chaos</p>
+            </div>
+
+            <div class="faucet-container">
+                <div class="faucet-visual">
+                    <!-- Faucet -->
+                    <svg class="faucet-svg" viewBox="0 0 100 60">
+                        <rect x="35" y="0" width="30" height="40" fill="#666" rx="3"/>
+                        <rect x="30" y="35" width="40" height="10" fill="#555" rx="2"/>
+                        <rect x="42" y="45" width="16" height="15" fill="#444" rx="2"/>
+                        <circle cx="50" cy="20" r="8" fill="#888"/>
+                        <rect x="55" y="15" width="25" height="10" fill="#777" rx="3"/>
+                    </svg>
+
+                    <!-- Drops will be created by JS -->
+                    <div id="dropsContainer"></div>
+
+                    <!-- Sink -->
+                    <div class="sink">
+                        <div class="splash" id="splash">
+                            <div class="splash-drop" style="left: 0; bottom: 0;"></div>
+                            <div class="splash-drop" style="left: 25px; bottom: 5px;"></div>
+                            <div class="splash-drop" style="left: 50px; bottom: 0;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <div class="pressure-control">
+                        <div class="pressure-label">
+                            <span>Water Pressure</span>
+                            <span class="pressure-value" id="pressureValue">Low</span>
+                        </div>
+                        <input type="range" class="pressure-slider" id="pressureSlider"
+                               min="1" max="4" step="0.01" value="1">
+                        <div class="pressure-marks">
+                            <span>Drip</span>
+                            <span>Flow</span>
+                            <span>Turbulent</span>
+                            <span>Chaotic</span>
+                        </div>
+                    </div>
+
+                    <div class="status-display order" id="statusDisplay">
+                        <div class="status-icon" id="statusIcon">💧</div>
+                        <div class="status-title" id="statusTitle">Perfect Rhythm</div>
+                        <div class="status-description" id="statusDesc">
+                            Each drop falls at exactly the same interval.
+                            You could set your watch to it!
+                        </div>
+                    </div>
+
+                    <div class="rhythm-container">
+                        <div class="rhythm-label">Drop Pattern (listen to the rhythm):</div>
+                        <div class="rhythm-display" id="rhythmDisplay">
+                            <!-- Dots will be created by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Other Real-Life Scenarios -->
+        <h2 style="text-align: center; margin: 60px 0 30px; font-size: 1.8em;">
+            This Pattern Is Everywhere
+        </h2>
+        <p style="text-align: center; color: #888; max-width: 600px; margin: 0 auto 40px;">
+            The journey from order to chaos follows the same path in countless systems.
+            Click each one to see it in action.
+        </p>
+
+        <div class="scenarios">
+            <div class="scenario-card active" data-scenario="faucet">
+                <div class="scenario-icon">🚰</div>
+                <h3>Dripping Faucet</h3>
+                <p>
+                    At low pressure, drops fall rhythmically. Turn it up and the dripping
+                    becomes irregular, then chaotic.
+                </p>
+            </div>
+
+            <div class="scenario-card" data-scenario="heart">
+                <div class="scenario-icon">❤️</div>
+                <h3>Your Heartbeat</h3>
+                <p>
+                    A healthy heart beats regularly. Under stress, it can enter period-doubling
+                    before dangerous arrhythmia.
+                </p>
+            </div>
+
+            <div class="scenario-card" data-scenario="traffic">
+                <div class="scenario-icon">🚗</div>
+                <h3>Traffic Flow</h3>
+                <p>
+                    Light traffic flows smoothly. Add more cars and stop-and-go waves emerge,
+                    then unpredictable jams.
+                </p>
+            </div>
+
+            <div class="scenario-card" data-scenario="weather">
+                <div class="scenario-icon">🌦️</div>
+                <h3>Weather Patterns</h3>
+                <p>
+                    Seasons are predictable. But daily weather is chaotic - tiny changes
+                    create vastly different outcomes.
+                </p>
+            </div>
+        </div>
+
+        <!-- The Journey Explained -->
+        <div class="journey-section">
+            <h2>The Four Stages: How Order Becomes Chaos</h2>
+
+            <div class="journey-steps">
+                <div class="journey-line"></div>
+
+                <!-- Stage 1 -->
+                <div class="journey-step">
+                    <div class="step-content">
+                        <h3 style="color: #2ed573;">Stage 1: Perfect Order</h3>
+                        <p>
+                            Everything is predictable. Like a grandfather clock, the system
+                            repeats the same pattern forever. One state, one rhythm, one outcome.
+                        </p>
+                        <div class="example">
+                            <strong>In the faucet:</strong> Drip... drip... drip...
+                            exactly one second apart, every time.
+                        </div>
+                    </div>
+                    <div class="step-number" style="background: #2ed573;">1</div>
+                    <div class="step-visual">
+                        <div class="visual-box">
+                            <div class="sound-wave" id="wave1">
+                                <div class="sound-bar" style="height: 30px;"></div>
+                                <div class="sound-bar" style="height: 30px;"></div>
+                                <div class="sound-bar" style="height: 30px;"></div>
+                                <div class="sound-bar" style="height: 30px;"></div>
+                                <div class="sound-bar" style="height: 30px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 2 -->
+                <div class="journey-step">
+                    <div class="step-content">
+                        <h3 style="color: #ffd93d;">Stage 2: The First Split</h3>
+                        <p>
+                            Something changes. Now the system alternates between TWO states.
+                            Long-short-long-short. The period has doubled.
+                        </p>
+                        <div class="example">
+                            <strong>In the faucet:</strong> Drip... drip-drip... drip... drip-drip...
+                            Two different intervals now repeat.
+                        </div>
+                    </div>
+                    <div class="step-number" style="background: #ffd93d; color: #000;">2</div>
+                    <div class="step-visual">
+                        <div class="visual-box">
+                            <div class="sound-wave" id="wave2">
+                                <div class="sound-bar" style="height: 40px;"></div>
+                                <div class="sound-bar" style="height: 20px;"></div>
+                                <div class="sound-bar" style="height: 40px;"></div>
+                                <div class="sound-bar" style="height: 20px;"></div>
+                                <div class="sound-bar" style="height: 40px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 3 -->
+                <div class="journey-step">
+                    <div class="step-content">
+                        <h3 style="color: #ff9f43;">Stage 3: The Cascade</h3>
+                        <p>
+                            The doubling accelerates: 2 becomes 4, then 8, then 16...
+                            Each split happens faster than the last, always by the same ratio (≈4.669).
+                        </p>
+                        <div class="example">
+                            <strong>In the faucet:</strong> Complex patterns emerge. You start
+                            to lose track of the rhythm, but it's still technically predictable.
+                        </div>
+                    </div>
+                    <div class="step-number" style="background: #ff9f43; color: #000;">3</div>
+                    <div class="step-visual">
+                        <div class="visual-box">
+                            <div class="sound-wave" id="wave3">
+                                <div class="sound-bar" style="height: 45px;"></div>
+                                <div class="sound-bar" style="height: 25px;"></div>
+                                <div class="sound-bar" style="height: 35px;"></div>
+                                <div class="sound-bar" style="height: 15px;"></div>
+                                <div class="sound-bar" style="height: 50px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stage 4 -->
+                <div class="journey-step">
+                    <div class="step-content">
+                        <h3 style="color: #ff6b6b;">Stage 4: Chaos</h3>
+                        <p>
+                            The pattern never repeats. Yet it's not random - the same starting
+                            conditions always produce the same sequence. It's deterministic
+                            chaos: predictable in theory, impossible in practice.
+                        </p>
+                        <div class="example">
+                            <strong>In the faucet:</strong> Drops fall without any discernible
+                            pattern. A tiny vibration changes everything.
+                        </div>
+                    </div>
+                    <div class="step-number" style="background: #ff6b6b;">4</div>
+                    <div class="step-visual">
+                        <div class="visual-box">
+                            <div class="sound-wave chaotic" id="wave4">
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consciousness Connection -->
+        <div class="consciousness-section">
+            <h2>Why This Matters: Your Brain Does This Too</h2>
+
+            <p class="consciousness-intro">
+                Here's the profound part: your mind might work the same way.
+                Consciousness could be nature's solution to taming chaos.
+            </p>
+
+            <div class="mind-comparison">
+                <div class="mind-box unconscious">
+                    <div class="mind-icon">🌊</div>
+                    <h3 style="color: #ff6b6b;">Unconscious Mind</h3>
+                    <ul class="mind-traits">
+                        <li>Processes millions of signals simultaneously</li>
+                        <li>Dreams feel random and nonlinear</li>
+                        <li>Intuition comes from "nowhere"</li>
+                        <li>Emotions can feel overwhelming</li>
+                        <li>Like weather - complex and unpredictable</li>
+                    </ul>
+                </div>
+
+                <div class="arrow-transform">→</div>
+
+                <div class="mind-box conscious">
+                    <div class="mind-icon">💡</div>
+                    <h3 style="color: #2ed573;">Conscious Mind</h3>
+                    <ul class="mind-traits">
+                        <li>Focuses on one thing at a time</li>
+                        <li>Creates linear narratives</li>
+                        <li>Reasons through cause and effect</li>
+                        <li>Makes decisions systematically</li>
+                        <li>Like a clock - ordered and predictable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="insight-box">
+                <h3>The Big Idea</h3>
+                <p>
+                    Your brain receives chaotic sensory data from an inherently nonlinear world.
+                    Consciousness might have evolved as a "chaos-reduction" system - taking the
+                    swirling complexity of reality and compressing it into simple, linear stories
+                    you can understand and act on.
+                </p>
+                <p style="margin-top: 15px;">
+                    This is why meditation can feel strange - you're briefly experiencing
+                    the mind closer to its natural, more chaotic state. And why focus requires
+                    effort - you're actively fighting the brain's tendency toward complexity.
+                </p>
+            </div>
+
+            <div class="examples-grid">
+                <div class="example-card">
+                    <h4>🎵 Why Music Moves Us</h4>
+                    <p>
+                        Music lives at the edge of chaos - patterns with just enough variation.
+                        Too predictable = boring. Too chaotic = noise.
+                    </p>
+                </div>
+                <div class="example-card">
+                    <h4>🧘 Meditation States</h4>
+                    <p>
+                        Deep meditation may shift brain dynamics from linear to more
+                        complex states - experiencing reality "less filtered."
+                    </p>
+                </div>
+                <div class="example-card">
+                    <h4>💭 Creative Insights</h4>
+                    <p>
+                        Breakthroughs often come when we stop forcing linear thought -
+                        letting the unconscious chaos surface briefly.
+                    </p>
+                </div>
+                <div class="example-card">
+                    <h4>😰 Anxiety & Overwhelm</h4>
+                    <p>
+                        Feeling overwhelmed might be consciousness struggling to linearize
+                        too much chaotic input at once.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Takeaways -->
+        <div class="takeaway-section">
+            <h2>What You Should Remember</h2>
+
+            <div class="takeaway-points">
+                <div class="takeaway-point">
+                    <div class="number">1</div>
+                    <h3>Simple Rules, Complex Behavior</h3>
+                    <p>
+                        A dripping faucet follows simple physics. Yet it can produce
+                        infinitely complex patterns. Complexity doesn't require complicated causes.
+                    </p>
+                </div>
+
+                <div class="takeaway-point">
+                    <div class="number">2</div>
+                    <h3>Universal Pattern</h3>
+                    <p>
+                        The same route to chaos appears in faucets, hearts, weather,
+                        populations, and brains. Nature has a favorite path: period doubling.
+                    </p>
+                </div>
+
+                <div class="takeaway-point">
+                    <div class="number">3</div>
+                    <h3>Chaos ≠ Random</h3>
+                    <p>
+                        Chaotic systems are deterministic - same start, same path.
+                        But tiny differences explode into huge ones. Predictable yet unknowable.
+                    </p>
+                </div>
+            </div>
+
+            <p style="margin-top: 40px; color: #888; font-size: 1.1em;">
+                Next time you see a dripping faucet, a flickering candle, or feel your
+                heart race - you're witnessing the same mathematical journey from order to chaos.
+            </p>
+        </div>
+
+        <footer>
+            <p>An interactive exploration of the Feigenbaum scenario</p>
+            <p style="margin-top: 10px;">Turn the pressure dial and watch chaos emerge</p>
+        </footer>
+    </div>
+
+    <script>
+        // ==================== FAUCET SIMULATION ====================
+
+        const dropsContainer = document.getElementById('dropsContainer');
+        const pressureSlider = document.getElementById('pressureSlider');
+        const rhythmDisplay = document.getElementById('rhythmDisplay');
+
+        let pressure = 1;
+        let dropInterval = null;
+        let rhythmHistory = [];
+        const maxRhythmDots = 20;
+
+        // Initialize rhythm display
+        function initRhythmDisplay() {
+            rhythmDisplay.innerHTML = '';
+            for (let i = 0; i < maxRhythmDots; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'rhythm-dot';
+                rhythmDisplay.appendChild(dot);
+            }
+        }
+
+        // Create a water drop
+        function createDrop() {
+            const drop = document.createElement('div');
+            drop.className = 'drop';
+            drop.style.top = '75px';
+            drop.style.opacity = '1';
+            dropsContainer.appendChild(drop);
+
+            // Animate drop falling
+            let pos = 75;
+            const fallSpeed = 3 + Math.random() * 2;
+
+            const fall = setInterval(() => {
+                pos += fallSpeed;
+                drop.style.top = pos + 'px';
+
+                if (pos > 350) {
+                    clearInterval(fall);
+                    drop.remove();
+                    createSplash();
+                    updateRhythm();
+                }
+            }, 16);
+        }
+
+        // Create splash effect
+        function createSplash() {
+            const splash = document.getElementById('splash');
+            splash.style.opacity = '1';
+
+            const drops = splash.querySelectorAll('.splash-drop');
+            drops.forEach((d, i) => {
+                d.style.opacity = '1';
+                d.style.transform = `translateY(-${10 + Math.random() * 15}px)`;
+            });
+
+            setTimeout(() => {
+                splash.style.opacity = '0';
+                drops.forEach(d => {
+                    d.style.opacity = '0';
+                    d.style.transform = 'translateY(0)';
+                });
+            }, 200);
+        }
+
+        // Update rhythm visualization
+        function updateRhythm() {
+            rhythmHistory.push(Date.now());
+            if (rhythmHistory.length > maxRhythmDots) {
+                rhythmHistory.shift();
+            }
+
+            const dots = rhythmDisplay.querySelectorAll('.rhythm-dot');
+            dots.forEach((dot, i) => {
+                if (i === rhythmHistory.length - 1) {
+                    dot.classList.add('active');
+                    setTimeout(() => dot.classList.remove('active'), 300);
+                }
+            });
+        }
+
+        // Logistic map for timing
+        function logisticMap(x, r) {
+            return r * x * (1 - x);
+        }
+
+        // Calculate drop interval based on pressure (using Feigenbaum dynamics)
+        let logisticX = 0.5;
+
+        function getNextInterval() {
+            // Map pressure (1-4) to logistic map r parameter (2.5-4)
+            const r = 2.5 + (pressure - 1) * 0.5;
+
+            logisticX = logisticMap(logisticX, r);
+
+            // Base interval modified by logistic map
+            const baseInterval = 800 - (pressure - 1) * 150;
+            const variation = logisticX * 400;
+
+            return Math.max(100, baseInterval - variation + 200);
+        }
+
+        // Start dripping
+        function startDripping() {
+            if (dropInterval) clearTimeout(dropInterval);
+
+            function drip() {
+                createDrop();
+                const nextTime = getNextInterval();
+                dropInterval = setTimeout(drip, nextTime);
+            }
+
+            drip();
+        }
+
+        // Update status display
+        function updateStatus() {
+            const statusDisplay = document.getElementById('statusDisplay');
+            const statusIcon = document.getElementById('statusIcon');
+            const statusTitle = document.getElementById('statusTitle');
+            const statusDesc = document.getElementById('statusDesc');
+            const pressureValue = document.getElementById('pressureValue');
+
+            statusDisplay.className = 'status-display';
+
+            if (pressure < 1.8) {
+                statusDisplay.classList.add('order');
+                statusIcon.textContent = '💧';
+                statusTitle.textContent = 'Perfect Rhythm';
+                statusDesc.textContent = 'Each drop falls at exactly the same interval. You could set your watch to it!';
+                pressureValue.textContent = 'Low';
+            } else if (pressure < 2.5) {
+                statusDisplay.classList.add('period2');
+                statusIcon.textContent = '💧💧';
+                statusTitle.textContent = 'Double Beat';
+                statusDesc.textContent = 'Notice the pattern? Long-short-long-short. The rhythm has split in two!';
+                pressureValue.textContent = 'Medium';
+            } else if (pressure < 3.2) {
+                statusDisplay.classList.add('period4');
+                statusIcon.textContent = '💧💧💧💧';
+                statusTitle.textContent = 'Complex Pattern';
+                statusDesc.textContent = 'Four different intervals now. The pattern is getting harder to follow...';
+                pressureValue.textContent = 'High';
+            } else {
+                statusDisplay.classList.add('chaos');
+                statusIcon.textContent = '🌊';
+                statusTitle.textContent = 'Chaos!';
+                statusDesc.textContent = 'No pattern repeats. Each drop is unpredictable, yet still determined by physics.';
+                pressureValue.textContent = 'Chaotic';
+            }
+        }
+
+        // Pressure slider handler
+        pressureSlider.addEventListener('input', (e) => {
+            pressure = parseFloat(e.target.value);
+            updateStatus();
+            logisticX = 0.5; // Reset logistic map
+        });
+
+        // ==================== SCENARIO SWITCHING ====================
+
+        const scenarioCards = document.querySelectorAll('.scenario-card');
+
+        scenarioCards.forEach(card => {
+            card.addEventListener('click', () => {
+                scenarioCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+
+                // Could add different visualizations for each scenario
+                const scenario = card.dataset.scenario;
+                console.log('Switched to scenario:', scenario);
+            });
+        });
+
+        // ==================== WAVE ANIMATIONS ====================
+
+        function animateWaves() {
+            // Wave 1 - Regular
+            const wave1Bars = document.querySelectorAll('#wave1 .sound-bar');
+            let phase1 = 0;
+            setInterval(() => {
+                phase1 += 0.1;
+                wave1Bars.forEach((bar, i) => {
+                    bar.style.height = (30 + 10 * Math.sin(phase1)) + 'px';
+                });
+            }, 50);
+
+            // Wave 2 - Period 2
+            const wave2Bars = document.querySelectorAll('#wave2 .sound-bar');
+            let phase2 = 0;
+            setInterval(() => {
+                phase2 += 0.1;
+                wave2Bars.forEach((bar, i) => {
+                    const offset = i % 2 === 0 ? 0 : Math.PI;
+                    bar.style.height = (30 + 15 * Math.sin(phase2 + offset)) + 'px';
+                });
+            }, 50);
+
+            // Wave 3 - Period 4
+            const wave3Bars = document.querySelectorAll('#wave3 .sound-bar');
+            let phase3 = 0;
+            setInterval(() => {
+                phase3 += 0.08;
+                wave3Bars.forEach((bar, i) => {
+                    const offset = (i % 4) * Math.PI / 2;
+                    bar.style.height = (30 + 20 * Math.sin(phase3 + offset)) + 'px';
+                });
+            }, 50);
+
+            // Wave 4 - Chaotic
+            const wave4Bars = document.querySelectorAll('#wave4 .sound-bar');
+            let chaoticX = 0.5;
+            setInterval(() => {
+                wave4Bars.forEach((bar) => {
+                    chaoticX = 3.9 * chaoticX * (1 - chaoticX);
+                    bar.style.height = (15 + chaoticX * 40) + 'px';
+                });
+            }, 100);
+        }
+
+        // ==================== INITIALIZATION ====================
+
+        window.addEventListener('load', () => {
+            initRhythmDisplay();
+            startDripping();
+            updateStatus();
+            animateWaves();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feigenbaum Scenario: From Order to Chaos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e8e8e8;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(90deg, #00d9ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            color: #aaa;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 1000px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .card h2 {
+            color: #00d9ff;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .card h3 {
+            color: #ff9f43;
+            margin: 20px 0 10px;
+            font-size: 1.1em;
+        }
+
+        .card p {
+            line-height: 1.7;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            position: relative;
+            background: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .control-group {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #00d9ff;
+            font-weight: 500;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #333;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .control-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d9ff, #0099ff);
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+        }
+
+        .value-display {
+            text-align: center;
+            font-size: 1.5em;
+            color: #fff;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Buttons */
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d9ff, #0099ff);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: #fff;
+        }
+
+        /* Time Series */
+        .time-series-container {
+            height: 150px;
+            margin-top: 20px;
+        }
+
+        /* Info Boxes */
+        .info-box {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(255, 0, 255, 0.1));
+            border-left: 4px solid #00d9ff;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .info-box.warning {
+            border-left-color: #ff9f43;
+            background: linear-gradient(135deg, rgba(255, 159, 67, 0.1), rgba(255, 107, 107, 0.1));
+        }
+
+        .info-box.chaos {
+            border-left-color: #ff6b6b;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(238, 90, 36, 0.1));
+        }
+
+        /* Period Indicator */
+        .period-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .period-badge {
+            font-size: 3em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00d9ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .period-label {
+            font-size: 1.2em;
+            color: #aaa;
+        }
+
+        /* Regime Cards */
+        .regime-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .regime-card {
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .regime-card:hover {
+            transform: scale(1.05);
+        }
+
+        .regime-card.active {
+            border-color: #00d9ff;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        }
+
+        .regime-card.order {
+            background: linear-gradient(135deg, rgba(46, 213, 115, 0.3), rgba(39, 174, 96, 0.3));
+        }
+
+        .regime-card.period2 {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.3), rgba(0, 153, 255, 0.3));
+        }
+
+        .regime-card.period4 {
+            background: linear-gradient(135deg, rgba(156, 136, 255, 0.3), rgba(111, 66, 193, 0.3));
+        }
+
+        .regime-card.chaos {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(238, 90, 36, 0.3));
+        }
+
+        .regime-card .r-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .regime-card .r-label {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        /* Journey Section */
+        .journey-section {
+            margin-top: 40px;
+        }
+
+        .journey-timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .journey-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #2ed573, #00d9ff, #9c88ff, #ff6b6b);
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        .journey-step {
+            display: flex;
+            align-items: center;
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .journey-step:nth-child(odd) {
+            flex-direction: row-reverse;
+        }
+
+        .journey-content {
+            width: 45%;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .journey-step:nth-child(odd) .journey-content {
+            text-align: right;
+        }
+
+        .journey-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid #1a1a2e;
+        }
+
+        .journey-step:nth-child(1) .journey-dot { background: #2ed573; }
+        .journey-step:nth-child(2) .journey-dot { background: #00d9ff; }
+        .journey-step:nth-child(3) .journey-dot { background: #9c88ff; }
+        .journey-step:nth-child(4) .journey-dot { background: #ff6b6b; }
+
+        /* Consciousness Section */
+        .consciousness-section {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, rgba(156, 136, 255, 0.1), rgba(0, 217, 255, 0.1));
+            border-radius: 20px;
+            border: 1px solid rgba(156, 136, 255, 0.2);
+        }
+
+        .brain-visual {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .brain-state {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            min-width: 200px;
+        }
+
+        .brain-icon {
+            font-size: 4em;
+            margin-bottom: 10px;
+        }
+
+        .brain-state h4 {
+            color: #00d9ff;
+            margin-bottom: 10px;
+        }
+
+        /* Feigenbaum Constant */
+        .constant-display {
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .constant-value {
+            font-size: 4em;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(90deg, #00d9ff, #ff00ff, #ff9f43);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+        }
+
+        .constant-name {
+            font-size: 1.5em;
+            color: #aaa;
+            margin-top: 10px;
+        }
+
+        /* Animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            margin-top: 40px;
+        }
+
+        /* Scroll indicator */
+        .scroll-indicator {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .scroll-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scroll-dot:hover, .scroll-dot.active {
+            background: #00d9ff;
+            box-shadow: 0 0 10px rgba(0, 217, 255, 0.5);
+        }
+
+        /* Lyapunov display */
+        .lyapunov-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .lyapunov-value {
+            font-size: 1.5em;
+            font-family: 'Courier New', monospace;
+        }
+
+        .lyapunov-value.positive {
+            color: #ff6b6b;
+        }
+
+        .lyapunov-value.negative {
+            color: #2ed573;
+        }
+
+        /* Interactive demo */
+        .interactive-demo {
+            position: relative;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+
+        .iteration-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .iteration-value {
+            padding: 10px 15px;
+            background: rgba(0, 217, 255, 0.2);
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            border: 1px solid rgba(0, 217, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .iteration-value.highlight {
+            background: rgba(0, 217, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .journey-timeline::before { display: none; }
+            .journey-step { flex-direction: column !important; }
+            .journey-content { width: 100%; text-align: left !important; }
+            .journey-dot { display: none; }
+            .constant-value { font-size: 2.5em; }
+            .scroll-indicator { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>The Feigenbaum Scenario</h1>
+            <p class="subtitle">
+                An interactive journey from order to deterministic chaos through the universal
+                period-doubling route - and its profound implications for consciousness
+            </p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Left Column: Visualization -->
+            <div class="card">
+                <h2>Bifurcation Diagram</h2>
+                <p>The iconic visualization showing how simple equations create infinite complexity</p>
+
+                <div class="canvas-container">
+                    <canvas id="bifurcationCanvas" width="600" height="400"></canvas>
+                </div>
+
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Growth Rate (r): <span id="rValueDisplay">2.5</span></label>
+                        <input type="range" id="rSlider" min="0" max="4" step="0.001" value="2.5">
+                        <div class="btn-group">
+                            <button class="btn btn-secondary" onclick="animateR()">Auto Explore</button>
+                            <button class="btn btn-secondary" onclick="stopAnimation()">Stop</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="period-indicator">
+                    <div>
+                        <div class="period-badge" id="periodDisplay">1</div>
+                        <div class="period-label">Current Period</div>
+                    </div>
+                    <div style="text-align: left;">
+                        <div id="regimeDescription">Fixed Point - Stable Equilibrium</div>
+                        <div style="color: #666; font-size: 0.9em;" id="regimeExplanation">
+                            The system settles to a single value
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lyapunov-display">
+                    <span style="color: #aaa;">Lyapunov Exponent:</span>
+                    <span class="lyapunov-value" id="lyapunovValue">-0.693</span>
+                    <span id="lyapunovIndicator" style="font-size: 0.9em; color: #2ed573;">
+                        (Stable)
+                    </span>
+                </div>
+            </div>
+
+            <!-- Right Column: Time Series -->
+            <div class="card">
+                <h2>Population Over Time</h2>
+                <p>Watch how the logistic map evolves: x<sub>n+1</sub> = r · x<sub>n</sub> · (1 - x<sub>n</sub>)</p>
+
+                <div class="canvas-container time-series-container">
+                    <canvas id="timeSeriesCanvas" width="600" height="150"></canvas>
+                </div>
+
+                <div class="interactive-demo">
+                    <h3>Live Iteration Values</h3>
+                    <div class="iteration-display" id="iterationDisplay"></div>
+                    <div class="btn-group" style="justify-content: center;">
+                        <button class="btn btn-primary" onclick="stepIteration()">Step Forward</button>
+                        <button class="btn btn-secondary" onclick="resetIteration()">Reset</button>
+                        <button class="btn btn-secondary" onclick="toggleAutoStep()">
+                            <span id="autoStepLabel">Auto Run</span>
+                        </button>
+                    </div>
+                </div>
+
+                <h3>Quick Jump to Regimes</h3>
+                <div class="regime-cards">
+                    <div class="regime-card order" onclick="setR(2.8)" data-r="2.8">
+                        <div class="r-value">r = 2.8</div>
+                        <div class="r-label">Period 1</div>
+                    </div>
+                    <div class="regime-card period2" onclick="setR(3.2)" data-r="3.2">
+                        <div class="r-value">r = 3.2</div>
+                        <div class="r-label">Period 2</div>
+                    </div>
+                    <div class="regime-card period4" onclick="setR(3.5)" data-r="3.5">
+                        <div class="r-value">r = 3.5</div>
+                        <div class="r-label">Period 4</div>
+                    </div>
+                    <div class="regime-card chaos" onclick="setR(3.9)" data-r="3.9">
+                        <div class="r-value">r = 3.9</div>
+                        <div class="r-label">Chaos</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- What is this about? -->
+        <div class="card">
+            <h2>What is the Feigenbaum Scenario?</h2>
+
+            <div class="info-box">
+                <strong>The Core Discovery:</strong> In 1975, physicist Mitchell Feigenbaum discovered
+                that the route from order to chaos follows a <em>universal pattern</em> - regardless of
+                the specific system involved. The same mathematical constants appear in dripping faucets,
+                population dynamics, heart rhythms, and even electronic circuits.
+            </div>
+
+            <p>
+                The Feigenbaum scenario describes how orderly systems transition to chaos through a
+                process called <strong>period doubling</strong>. As you increase a control parameter:
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div class="info-box" style="margin: 0;">
+                    <strong>Period 1</strong><br>
+                    System oscillates with one value<br>
+                    <small>Like a steady heartbeat</small>
+                </div>
+                <div class="info-box warning" style="margin: 0;">
+                    <strong>Period 2</strong><br>
+                    System alternates between two values<br>
+                    <small>High-low-high-low pattern</small>
+                </div>
+                <div class="info-box" style="margin: 0; border-left-color: #9c88ff;">
+                    <strong>Period 4, 8, 16...</strong><br>
+                    Doubling continues faster<br>
+                    <small>Approaching the edge</small>
+                </div>
+                <div class="info-box chaos" style="margin: 0;">
+                    <strong>Chaos</strong><br>
+                    Infinite period - never repeats<br>
+                    <small>Deterministic yet unpredictable</small>
+                </div>
+            </div>
+
+            <div class="constant-display">
+                <div class="constant-value">4.669201...</div>
+                <div class="constant-name">The Feigenbaum Constant (δ)</div>
+                <p style="margin-top: 15px; color: #aaa; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    Each period-doubling occurs approximately 4.669 times faster than the previous one.
+                    This ratio is <em>universal</em> - it appears in all systems that undergo period-doubling,
+                    from fluid turbulence to laser physics.
+                </p>
+            </div>
+        </div>
+
+        <!-- The Journey Timeline -->
+        <div class="card journey-section">
+            <h2>The Journey from Order to Chaos</h2>
+
+            <div class="journey-timeline">
+                <div class="journey-step">
+                    <div class="journey-content">
+                        <h3 style="color: #2ed573;">Stage 1: Order (r < 3)</h3>
+                        <p>
+                            The system is stable and predictable. Like a well-regulated biological
+                            rhythm or a steady economic cycle. Small disturbances die out, and the
+                            system returns to equilibrium.
+                        </p>
+                        <p><strong>Example:</strong> A healthy, regular heartbeat</p>
+                    </div>
+                    <div class="journey-dot"></div>
+                </div>
+
+                <div class="journey-step">
+                    <div class="journey-content">
+                        <h3 style="color: #00d9ff;">Stage 2: First Bifurcation (r ≈ 3)</h3>
+                        <p>
+                            Stability breaks. The system begins oscillating between two states.
+                            This is the first "period doubling" - the birth of complexity.
+                        </p>
+                        <p><strong>Example:</strong> Seasonal population cycles (boom-bust)</p>
+                    </div>
+                    <div class="journey-dot"></div>
+                </div>
+
+                <div class="journey-step">
+                    <div class="journey-content">
+                        <h3 style="color: #9c88ff;">Stage 3: Cascade (r ≈ 3.449...)</h3>
+                        <p>
+                            Period doubles again: 2 → 4 → 8 → 16... Each doubling happens faster,
+                            converging to the Feigenbaum constant ratio. The system is "on the edge."
+                        </p>
+                        <p><strong>Example:</strong> Pre-turbulent fluid flow</p>
+                    </div>
+                    <div class="journey-dot"></div>
+                </div>
+
+                <div class="journey-step">
+                    <div class="journey-content">
+                        <h3 style="color: #ff6b6b;">Stage 4: Chaos (r > 3.5699...)</h3>
+                        <p>
+                            Infinite period - the system never exactly repeats. Yet it's
+                            <em>deterministic</em>: the same starting point always gives the same
+                            trajectory. Chaos is not randomness - it's extreme sensitivity to
+                            initial conditions.
+                        </p>
+                        <p><strong>Example:</strong> Weather systems, turbulent flow</p>
+                    </div>
+                    <div class="journey-dot"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consciousness Section -->
+        <div class="consciousness-section">
+            <h2 style="color: #9c88ff; text-align: center; margin-bottom: 20px;">
+                The Connection to Consciousness
+            </h2>
+
+            <p style="text-align: center; max-width: 800px; margin: 0 auto 30px;">
+                Perhaps the most profound application of the Feigenbaum scenario is in understanding
+                the human mind. Research suggests that consciousness may serve as a
+                <strong>"chaos-taming"</strong> mechanism.
+            </p>
+
+            <div class="brain-visual">
+                <div class="brain-state">
+                    <div class="brain-icon">🧠</div>
+                    <h4>Unconscious Processing</h4>
+                    <p style="color: #aaa; font-size: 0.9em;">
+                        Nonlinear, chaotic dynamics<br>
+                        Multiple parallel processes<br>
+                        High-dimensional state space<br>
+                        <span style="color: #ff6b6b;">Difficult to predict</span>
+                    </p>
+                </div>
+                <div style="display: flex; align-items: center; font-size: 3em; color: #9c88ff;">
+                    →
+                </div>
+                <div class="brain-state">
+                    <div class="brain-icon">💡</div>
+                    <h4>Conscious Experience</h4>
+                    <p style="color: #aaa; font-size: 0.9em;">
+                        Linear, sequential thought<br>
+                        Focused attention<br>
+                        Reduced dimensionality<br>
+                        <span style="color: #2ed573;">Rational and predictable</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box" style="max-width: 800px; margin: 30px auto;">
+                <h3 style="color: #9c88ff; margin-bottom: 10px;">The Period-Doubling Limit</h3>
+                <p>
+                    Studies suggest that conscious information processing may be fundamentally
+                    limited to handling about <strong>7 ± 2 distinct items</strong> at once -
+                    potentially reflecting a period-doubling constraint. Just as physical systems
+                    can only undergo a finite number of doublings before chaos, consciousness may
+                    operate at a similar edge between order and complexity.
+                </p>
+            </div>
+
+            <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 15px; margin-top: 30px;">
+                <h3 style="color: #00d9ff; margin-bottom: 15px;">Key Insight</h3>
+                <p style="font-size: 1.1em; line-height: 1.8;">
+                    The brain constantly receives chaotic sensory data from an inherently nonlinear
+                    world. Consciousness may have evolved as a mechanism to <em>compress</em> this
+                    complexity into manageable, approximately linear narratives. This is why:
+                </p>
+                <ul style="margin: 15px 0 0 20px; line-height: 2;">
+                    <li>We perceive time as flowing linearly (even though physics says otherwise)</li>
+                    <li>We construct cause-and-effect narratives (even for chaotic events)</li>
+                    <li>We can only focus on one thought stream at a time (serialization)</li>
+                    <li>Meditation and dreams can feel "nonlinear" - closer to the chaotic substrate</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Examples in Nature -->
+        <div class="card" style="margin-top: 30px;">
+            <h2>Period Doubling in Nature</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div class="info-box" style="margin: 0;">
+                    <h3 style="color: #ff6b6b;">❤️ Heart Rhythms</h3>
+                    <p>
+                        Before cardiac fibrillation (chaos), the heart often exhibits period-doubling
+                        in its electrical activity. Detecting this cascade can predict dangerous
+                        arrhythmias.
+                    </p>
+                </div>
+
+                <div class="info-box warning" style="margin: 0;">
+                    <h3 style="color: #ff9f43;">🌊 Fluid Dynamics</h3>
+                    <p>
+                        As flow speed increases, fluids transition from smooth (laminar) to turbulent
+                        through period-doubling bifurcations - exactly following Feigenbaum's constants.
+                    </p>
+                </div>
+
+                <div class="info-box" style="margin: 0;">
+                    <h3 style="color: #00d9ff;">🐇 Population Dynamics</h3>
+                    <p>
+                        Animal populations can exhibit period-doubling as resources fluctuate.
+                        Boom-bust cycles double in complexity until chaotic population crashes occur.
+                    </p>
+                </div>
+
+                <div class="info-box" style="margin: 0; border-left-color: #9c88ff;">
+                    <h3 style="color: #9c88ff;">🧬 Brain Waves</h3>
+                    <p>
+                        EEG patterns show period-doubling during transitions between sleep stages
+                        and at the onset of epileptic seizures - chaos at the edge of consciousness.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Learning -->
+        <div class="card" style="margin-top: 30px;">
+            <h2>Try It Yourself: The Logistic Map</h2>
+
+            <p>The logistic map is the simplest equation that demonstrates the full Feigenbaum scenario:</p>
+
+            <div style="text-align: center; font-size: 1.8em; margin: 25px 0; font-family: 'Courier New', monospace;">
+                x<sub>n+1</sub> = r · x<sub>n</sub> · (1 - x<sub>n</sub>)
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div>
+                    <h3>What the Variables Mean:</h3>
+                    <ul style="line-height: 2; margin-left: 20px;">
+                        <li><strong>x</strong> = Population (as fraction of max, 0 to 1)</li>
+                        <li><strong>r</strong> = Growth rate (the control parameter)</li>
+                        <li><strong>n</strong> = Generation/time step</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Why It Works:</h3>
+                    <p style="line-height: 1.8;">
+                        The <code>(1 - x)</code> term creates <em>negative feedback</em>:
+                        high population → fewer resources → population drop. This simple
+                        competition between growth and limitation produces infinite complexity.
+                    </p>
+                </div>
+            </div>
+
+            <div class="info-box warning" style="margin-top: 20px;">
+                <strong>Key Insight:</strong> Move the slider above slowly through r = 3.0, 3.449, 3.544, 3.5644...
+                Watch how quickly the bifurcations accelerate! This acceleration follows the Feigenbaum constant
+                (≈ 4.669) - a universal law of nature.
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                Interactive visualization of the Feigenbaum Scenario<br>
+                <span style="color: #00d9ff;">Drag the slider to explore the route from order to chaos</span>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Global state
+        let r = 2.5;
+        let x = 0.5;
+        let timeSeriesData = [];
+        let animationId = null;
+        let autoStepId = null;
+        let iterationHistory = [];
+        const maxTimeSeriesPoints = 100;
+        const maxIterationHistory = 12;
+
+        // Canvas setup
+        const bifurcationCanvas = document.getElementById('bifurcationCanvas');
+        const bifurcationCtx = bifurcationCanvas.getContext('2d');
+        const timeSeriesCanvas = document.getElementById('timeSeriesCanvas');
+        const timeSeriesCtx = timeSeriesCanvas.getContext('2d');
+
+        // High DPI support
+        function setupCanvas(canvas, ctx) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.scale(dpr, dpr);
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+        }
+
+        // Initialize canvases
+        function initCanvases() {
+            bifurcationCanvas.style.width = '100%';
+            bifurcationCanvas.style.height = '400px';
+            timeSeriesCanvas.style.width = '100%';
+            timeSeriesCanvas.style.height = '150px';
+
+            setupCanvas(bifurcationCanvas, bifurcationCtx);
+            setupCanvas(timeSeriesCanvas, timeSeriesCtx);
+        }
+
+        // Logistic map function
+        function logisticMap(x, r) {
+            return r * x * (1 - x);
+        }
+
+        // Calculate Lyapunov exponent
+        function calculateLyapunov(r, iterations = 1000) {
+            let x = 0.5;
+            let sum = 0;
+
+            // Skip transient
+            for (let i = 0; i < 100; i++) {
+                x = logisticMap(x, r);
+            }
+
+            // Calculate
+            for (let i = 0; i < iterations; i++) {
+                const derivative = Math.abs(r * (1 - 2 * x));
+                if (derivative > 0) {
+                    sum += Math.log(derivative);
+                }
+                x = logisticMap(x, r);
+            }
+
+            return sum / iterations;
+        }
+
+        // Detect period
+        function detectPeriod(r, tolerance = 0.0001) {
+            let x = 0.5;
+
+            // Skip transient
+            for (let i = 0; i < 1000; i++) {
+                x = logisticMap(x, r);
+            }
+
+            const values = [];
+            for (let i = 0; i < 64; i++) {
+                x = logisticMap(x, r);
+                values.push(x);
+            }
+
+            // Check for periods 1, 2, 4, 8, 16, 32
+            for (let period of [1, 2, 4, 8, 16, 32]) {
+                let isPeriodic = true;
+                for (let i = 0; i < 32 && isPeriodic; i++) {
+                    if (Math.abs(values[i] - values[i + period]) > tolerance) {
+                        isPeriodic = false;
+                    }
+                }
+                if (isPeriodic) return period;
+            }
+
+            return '∞';
+        }
+
+        // Draw bifurcation diagram
+        function drawBifurcation() {
+            const width = bifurcationCanvas.width / (window.devicePixelRatio || 1);
+            const height = bifurcationCanvas.height / (window.devicePixelRatio || 1);
+
+            bifurcationCtx.fillStyle = '#000';
+            bifurcationCtx.fillRect(0, 0, width, height);
+
+            const rMin = 2.4;
+            const rMax = 4.0;
+            const iterations = 200;
+            const plotPoints = 100;
+
+            // Draw the bifurcation diagram
+            for (let px = 0; px < width; px++) {
+                const rVal = rMin + (px / width) * (rMax - rMin);
+                let x = 0.5;
+
+                // Skip transient
+                for (let i = 0; i < iterations; i++) {
+                    x = logisticMap(x, rVal);
+                }
+
+                // Plot attractor
+                for (let i = 0; i < plotPoints; i++) {
+                    x = logisticMap(x, rVal);
+                    const py = height - (x * height);
+
+                    // Color based on r value
+                    const hue = 180 + (rVal - rMin) / (rMax - rMin) * 120;
+                    bifurcationCtx.fillStyle = `hsla(${hue}, 80%, 60%, 0.3)`;
+                    bifurcationCtx.fillRect(px, py, 1, 1);
+                }
+            }
+
+            // Draw current r position
+            const currentRx = ((r - rMin) / (rMax - rMin)) * width;
+            bifurcationCtx.strokeStyle = '#ff0066';
+            bifurcationCtx.lineWidth = 2;
+            bifurcationCtx.setLineDash([5, 5]);
+            bifurcationCtx.beginPath();
+            bifurcationCtx.moveTo(currentRx, 0);
+            bifurcationCtx.lineTo(currentRx, height);
+            bifurcationCtx.stroke();
+            bifurcationCtx.setLineDash([]);
+
+            // Draw axes labels
+            bifurcationCtx.fillStyle = '#666';
+            bifurcationCtx.font = '12px sans-serif';
+            bifurcationCtx.fillText('r = 2.4', 5, height - 5);
+            bifurcationCtx.fillText('r = 4.0', width - 50, height - 5);
+            bifurcationCtx.fillText('x = 1', 5, 15);
+            bifurcationCtx.fillText('x = 0', 5, height - 20);
+
+            // Mark key bifurcation points
+            const bifurcationPoints = [
+                { r: 3.0, label: 'P2' },
+                { r: 3.449, label: 'P4' },
+                { r: 3.5441, label: 'P8' },
+                { r: 3.5699, label: '∞' }
+            ];
+
+            bifurcationCtx.fillStyle = '#ff9f43';
+            bifurcationCtx.font = '10px sans-serif';
+            bifurcationPoints.forEach(bp => {
+                const bx = ((bp.r - rMin) / (rMax - rMin)) * width;
+                bifurcationCtx.fillText(bp.label, bx - 5, 15);
+            });
+        }
+
+        // Draw time series
+        function drawTimeSeries() {
+            const width = timeSeriesCanvas.width / (window.devicePixelRatio || 1);
+            const height = timeSeriesCanvas.height / (window.devicePixelRatio || 1);
+
+            timeSeriesCtx.fillStyle = '#000';
+            timeSeriesCtx.fillRect(0, 0, width, height);
+
+            if (timeSeriesData.length < 2) return;
+
+            // Draw grid
+            timeSeriesCtx.strokeStyle = '#222';
+            timeSeriesCtx.lineWidth = 1;
+            for (let y = 0; y <= 1; y += 0.25) {
+                const py = height - (y * height);
+                timeSeriesCtx.beginPath();
+                timeSeriesCtx.moveTo(0, py);
+                timeSeriesCtx.lineTo(width, py);
+                timeSeriesCtx.stroke();
+            }
+
+            // Draw data
+            const gradient = timeSeriesCtx.createLinearGradient(0, 0, width, 0);
+            gradient.addColorStop(0, '#00d9ff');
+            gradient.addColorStop(1, '#ff00ff');
+
+            timeSeriesCtx.strokeStyle = gradient;
+            timeSeriesCtx.lineWidth = 2;
+            timeSeriesCtx.beginPath();
+
+            timeSeriesData.forEach((val, i) => {
+                const px = (i / (maxTimeSeriesPoints - 1)) * width;
+                const py = height - (val * height);
+                if (i === 0) {
+                    timeSeriesCtx.moveTo(px, py);
+                } else {
+                    timeSeriesCtx.lineTo(px, py);
+                }
+            });
+
+            timeSeriesCtx.stroke();
+
+            // Draw points
+            timeSeriesCtx.fillStyle = '#fff';
+            timeSeriesData.slice(-10).forEach((val, i, arr) => {
+                const idx = timeSeriesData.length - arr.length + i;
+                const px = (idx / (maxTimeSeriesPoints - 1)) * width;
+                const py = height - (val * height);
+                timeSeriesCtx.beginPath();
+                timeSeriesCtx.arc(px, py, 3, 0, Math.PI * 2);
+                timeSeriesCtx.fill();
+            });
+        }
+
+        // Update iteration display
+        function updateIterationDisplay() {
+            const container = document.getElementById('iterationDisplay');
+            container.innerHTML = '';
+
+            iterationHistory.forEach((val, i) => {
+                const div = document.createElement('div');
+                div.className = 'iteration-value' + (i === iterationHistory.length - 1 ? ' highlight' : '');
+                div.textContent = val.toFixed(4);
+                container.appendChild(div);
+            });
+        }
+
+        // Update all displays
+        function updateDisplays() {
+            document.getElementById('rValueDisplay').textContent = r.toFixed(3);
+            document.getElementById('rSlider').value = r;
+
+            // Period
+            const period = detectPeriod(r);
+            document.getElementById('periodDisplay').textContent = period;
+
+            // Regime description
+            const regimeDesc = document.getElementById('regimeDescription');
+            const regimeExp = document.getElementById('regimeExplanation');
+
+            if (r < 1) {
+                regimeDesc.textContent = 'Extinction';
+                regimeExp.textContent = 'Population dies out';
+            } else if (r < 3) {
+                regimeDesc.textContent = 'Fixed Point - Stable Equilibrium';
+                regimeExp.textContent = 'System settles to a single value';
+            } else if (r < 3.449) {
+                regimeDesc.textContent = 'Period 2 - First Bifurcation';
+                regimeExp.textContent = 'System oscillates between two values';
+            } else if (r < 3.5441) {
+                regimeDesc.textContent = 'Period 4 - Second Bifurcation';
+                regimeExp.textContent = 'Four-cycle oscillation emerges';
+            } else if (r < 3.5699) {
+                regimeDesc.textContent = 'Period Doubling Cascade';
+                regimeExp.textContent = 'Rapid approach to chaos';
+            } else if (r < 3.8284) {
+                regimeDesc.textContent = 'Chaotic Regime';
+                regimeExp.textContent = 'Deterministic but unpredictable';
+            } else {
+                regimeDesc.textContent = 'Deep Chaos';
+                regimeExp.textContent = 'Maximum sensitivity to initial conditions';
+            }
+
+            // Lyapunov exponent
+            const lyapunov = calculateLyapunov(r);
+            const lyapunovDisplay = document.getElementById('lyapunovValue');
+            const lyapunovIndicator = document.getElementById('lyapunovIndicator');
+
+            lyapunovDisplay.textContent = lyapunov.toFixed(3);
+
+            if (lyapunov < 0) {
+                lyapunovDisplay.className = 'lyapunov-value negative';
+                lyapunovIndicator.textContent = '(Stable)';
+                lyapunovIndicator.style.color = '#2ed573';
+            } else {
+                lyapunovDisplay.className = 'lyapunov-value positive';
+                lyapunovIndicator.textContent = '(Chaotic)';
+                lyapunovIndicator.style.color = '#ff6b6b';
+            }
+
+            // Update regime card highlights
+            document.querySelectorAll('.regime-card').forEach(card => {
+                const cardR = parseFloat(card.dataset.r);
+                card.classList.toggle('active', Math.abs(r - cardR) < 0.15);
+            });
+
+            drawBifurcation();
+            drawTimeSeries();
+        }
+
+        // Step iteration
+        function stepIteration() {
+            x = logisticMap(x, r);
+
+            timeSeriesData.push(x);
+            if (timeSeriesData.length > maxTimeSeriesPoints) {
+                timeSeriesData.shift();
+            }
+
+            iterationHistory.push(x);
+            if (iterationHistory.length > maxIterationHistory) {
+                iterationHistory.shift();
+            }
+
+            updateIterationDisplay();
+            drawTimeSeries();
+        }
+
+        // Reset iteration
+        function resetIteration() {
+            x = 0.5;
+            timeSeriesData = [x];
+            iterationHistory = [x];
+            updateIterationDisplay();
+            drawTimeSeries();
+        }
+
+        // Toggle auto step
+        function toggleAutoStep() {
+            if (autoStepId) {
+                clearInterval(autoStepId);
+                autoStepId = null;
+                document.getElementById('autoStepLabel').textContent = 'Auto Run';
+            } else {
+                autoStepId = setInterval(stepIteration, 100);
+                document.getElementById('autoStepLabel').textContent = 'Stop';
+            }
+        }
+
+        // Set r value
+        function setR(newR) {
+            r = newR;
+            resetIteration();
+            updateDisplays();
+        }
+
+        // Animate r
+        function animateR() {
+            stopAnimation();
+            let animR = 2.4;
+
+            animationId = setInterval(() => {
+                animR += 0.005;
+                if (animR > 4) {
+                    stopAnimation();
+                    return;
+                }
+                r = animR;
+                stepIteration();
+                updateDisplays();
+            }, 50);
+        }
+
+        // Stop animation
+        function stopAnimation() {
+            if (animationId) {
+                clearInterval(animationId);
+                animationId = null;
+            }
+        }
+
+        // Slider event
+        document.getElementById('rSlider').addEventListener('input', (e) => {
+            r = parseFloat(e.target.value);
+            resetIteration();
+            updateDisplays();
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            initCanvases();
+            resetIteration();
+            updateDisplays();
+        });
+
+        window.addEventListener('resize', () => {
+            initCanvases();
+            drawBifurcation();
+            drawTimeSeries();
+        });
+    </script>
+</body>
+</html>
