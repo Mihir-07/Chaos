@@ -954,6 +954,14 @@
             border: 1px solid var(--border-subtle);
         }
 
+        .time-series-mini canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
         .time-series-label {
             position: absolute;
             top: 12px;
@@ -971,6 +979,45 @@
             left: 0;
             right: 0;
             height: 100%;
+        }
+
+        /* Mobile Responsive Fixes */
+        @media (max-width: 600px) {
+            .time-series-mini {
+                height: 200px;
+                margin-top: 1rem;
+            }
+
+            .demo-visual {
+                aspect-ratio: 3/4;
+                min-height: 350px;
+            }
+
+            .pattern-display {
+                padding: 1rem;
+                gap: 4px;
+            }
+
+            .pattern-dot {
+                width: 6px;
+                height: 6px;
+            }
+
+            .status-card {
+                padding: 1.25rem;
+            }
+
+            .control-value {
+                font-size: 1.2rem;
+            }
+
+            .section-header {
+                margin-bottom: 2rem;
+            }
+
+            section {
+                padding: clamp(2rem, 8vw, 4rem) 0;
+            }
         }
     </style>
 </head>
@@ -1561,15 +1608,16 @@
 
         function drawFaucetTimeSeries() {
             const canvas = document.getElementById('faucetTimeSeries');
+            const container = canvas.parentElement;
             const ctx = canvas.getContext('2d');
             const dpr = window.devicePixelRatio || 1;
 
-            canvas.width = canvas.offsetWidth * dpr;
-            canvas.height = canvas.offsetHeight * dpr;
-            ctx.scale(dpr, dpr);
+            const w = container.clientWidth;
+            const h = container.clientHeight;
 
-            const w = canvas.offsetWidth;
-            const h = canvas.offsetHeight;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            ctx.scale(dpr, dpr);
             const padding = { top: 30, bottom: 15, left: 10, right: 10 };
             const graphH = h - padding.top - padding.bottom;
             const graphW = w - padding.left - padding.right;
@@ -1751,15 +1799,16 @@
 
         function drawCandleTimeSeries() {
             const canvas = document.getElementById('candleTimeSeries');
+            const container = canvas.parentElement;
             const ctx = canvas.getContext('2d');
             const dpr = window.devicePixelRatio || 1;
 
-            canvas.width = canvas.offsetWidth * dpr;
-            canvas.height = canvas.offsetHeight * dpr;
-            ctx.scale(dpr, dpr);
+            const w = container.clientWidth;
+            const h = container.clientHeight;
 
-            const w = canvas.offsetWidth;
-            const h = canvas.offsetHeight;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            ctx.scale(dpr, dpr);
             const padding = { top: 30, bottom: 15, left: 10, right: 10 };
             const graphH = h - padding.top - padding.bottom;
             const graphW = w - padding.left - padding.right;
